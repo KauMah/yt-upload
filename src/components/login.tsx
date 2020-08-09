@@ -1,36 +1,27 @@
-import {
-    GoogleLogin,
-    GoogleLoginResponse,
-    GoogleLoginResponseOffline,
-} from "react-google-login";
-
-import { LOGIN } from "../reduxStore";
-import React from "react";
-import _ from "lodash";
-import client from "./client.json";
-import { useDispatch } from "react-redux";
+import { GoogleLogin } from 'react-google-login';
+import { LOGIN } from '../reduxStore';
+import React from 'react';
+import _ from 'lodash';
+import client from './client.json';
+import { useDispatch } from 'react-redux';
 
 const Auth = () => {
     const dispatch = useDispatch();
-    const loginSuccess = (
-        response: GoogleLoginResponse | GoogleLoginResponseOffline
-    ) => {
-        const token = _.get(response, "accessToken", "");
-        if (token !== "") {
+    const onSuccess = (response: any) => {
+        const token = _.get(response, 'accessToken', '');
+        if (token !== '') {
             dispatch({ type: LOGIN, token: token });
-            console.log(`${LOGIN} is the enum, ${token} is the token`);
         } else {
-            window.alert("Something went wrong");
+            window.alert('Something went wrong');
         }
     };
     return (
         <GoogleLogin
             clientId={client.web.client_id}
             buttonText="Login"
-            onSuccess={loginSuccess}
-            onFailure={(response) => console.log(response)}
-            cookiePolicy={"single_host_origin"}
-        />
+            onSuccess={onSuccess}
+            onFailure={() => console.log('I no work')}
+            cookiePolicy={'single_host_origin'}></GoogleLogin>
     );
 };
 

@@ -1,13 +1,14 @@
-import { AppState } from "./reduxStore";
-import Auth from "./components/login";
-import React from "react";
-import { useSelector } from "react-redux";
+import { AppState } from './reduxStore';
+import Auth from './components/login';
+import React from 'react';
+import TileView from './components/tileView';
+import { useSelector } from 'react-redux';
 
 const App = () => {
-    const loginState = useSelector<AppState, AppState["signedIn"]>(
+    const loginState = useSelector<AppState, AppState['signedIn']>(
         (state) => state.signedIn
     );
-    return <>{loginState ? "You are logged in" : <Auth />}</>;
+    return <>{loginState ? <TileView /> : <Auth />}</>;
 };
 
 export default App;
