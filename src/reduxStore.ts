@@ -1,11 +1,12 @@
-import { createStore } from "redux";
+import { createStore } from 'redux';
+import { loadState } from './localStore';
 
-export const LOGIN = "LOGIN";
-export const LOGOUT = "LOGOUT";
+export const LOGIN = 'LOGIN';
+export const LOGOUT = 'LOGOUT';
 
 export interface Login {
     type: typeof LOGIN;
-    token: string;
+    token: TokenObj;
 }
 
 export interface Logout {
@@ -14,14 +15,22 @@ export interface Logout {
 
 export type Action = Login | Logout;
 
+export interface TokenObj {
+    access_token: string;
+    expires_at: number;
+}
+
 export interface AppState {
     signedIn: boolean;
-    accessToken: string;
+    accessToken: TokenObj;
 }
 
 const initialState: AppState = {
     signedIn: false,
-    accessToken: "",
+    accessToken: {
+        access_token: '',
+        expires_at: 0,
+    },
 };
 
 function reducer(state: AppState = initialState, action: Action) {
@@ -36,11 +45,14 @@ function reducer(state: AppState = initialState, action: Action) {
             return {
                 ...state,
                 signedIn: false,
-                accessToken: "",
+                accessToken: {
+                    access_token: '',
+                    expires_at: 0,
+                },
             };
         default:
             return state;
     }
 }
 
-export const store = createStore(reducer);
+export const store = createStore(reducer, loadState());

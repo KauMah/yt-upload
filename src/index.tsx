@@ -7,7 +7,15 @@ import App from './app';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { saveState } from './localStore';
 import { store } from './reduxStore';
+import { throttle } from 'lodash';
+
+store.subscribe(
+    throttle(() => {
+        saveState(store.getState());
+    }, 1000)
+);
 
 ReactDOM.render(
     <React.StrictMode>

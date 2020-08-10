@@ -8,11 +8,10 @@ import { useDispatch } from 'react-redux';
 const Auth = () => {
     const dispatch = useDispatch();
     const onSuccess = (response: any) => {
-        const token = _.get(response, 'accessToken', '');
-        if (token !== '') {
+        console.log(response);
+        const token = _.pick(response.tokenObj, ['access_token', 'expires_at']);
+        if (token.access_token) {
             dispatch({ type: LOGIN, token: token });
-        } else {
-            window.alert('Something went wrong');
         }
     };
     return (
@@ -20,7 +19,7 @@ const Auth = () => {
             clientId={client.web.client_id}
             buttonText="Login"
             onSuccess={onSuccess}
-            onFailure={() => console.log('I no work')}
+            onFailure={() => window.alert('Login Failed!')}
             cookiePolicy={'single_host_origin'}></GoogleLogin>
     );
 };

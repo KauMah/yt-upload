@@ -1,7 +1,7 @@
+import { AppState, TokenObj } from '../../reduxStore';
 import { EmptyTile, Tile } from './tile/';
 import React, { useEffect, useState } from 'react';
 
-import { AppState } from '../../reduxStore';
 import axios from 'axios';
 import { connect } from 'react-redux';
 
@@ -12,7 +12,7 @@ const styles = {
 };
 
 interface Props {
-    token: string;
+    token: TokenObj;
 }
 
 const TileView = ({ token }: Props) => {
@@ -24,14 +24,14 @@ const TileView = ({ token }: Props) => {
     const [videoList, setVideoList] = useState([]);
 
     useEffect(() => {
-        if (!loaded) {
+        if (!loaded && token.expires_at > Date.now()) {
             axios({
                 method: 'get',
                 url:
                     'https://www.googleapis.com/youtube/v3/channels?part=contentDetails&mine=true',
                 responseType: 'json',
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token.access_token}`,
                 },
             }).then((response: any) => {
                 setPlaylistId(
@@ -43,7 +43,7 @@ const TileView = ({ token }: Props) => {
                     url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=19&playlistId=${playlistId}`,
                     responseType: 'json',
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${token.access_token}`,
                     },
                 }).then((response: any) => {
                     setLoaded(true);
