@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React from 'react';
 import TextTruncate from 'react-text-truncate';
 
@@ -28,7 +29,7 @@ interface Props {
 
 const Tile = ({ title, thumbnailUrl, id }: Props) => {
     return (
-        <a href={`/${id}`} style={styles.link}>
+        <Link to={`/videos/${id}`} style={styles.link}>
             <TextTruncate
                 line={1}
                 element="h6"
@@ -38,7 +39,7 @@ const Tile = ({ title, thumbnailUrl, id }: Props) => {
             <div style={styles.container}>
                 <img style={styles.thumbnail} src={thumbnailUrl} alt=""></img>
             </div>
-        </a>
+        </Link>
     );
 };
 
