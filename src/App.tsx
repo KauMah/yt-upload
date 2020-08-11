@@ -12,7 +12,7 @@ const App = () => {
         (state) => state.signedIn
     );
     return (
-        <BrowserRouter>
+        <BrowserRouter basename={`${process.env.PUBLIC_URL}/`}>
             <Switch>
                 <Route exact path="/">
                     <Redirect to="/videos" />
