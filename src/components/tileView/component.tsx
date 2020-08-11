@@ -1,9 +1,10 @@
-import { AppState, TokenObj } from '../../reduxStore';
+import { AppState, LOGOUT, TokenObj } from '../../reduxStore';
 import { EmptyTile, Tile } from './tile/';
 import React, { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 
 import axios from 'axios';
-import { connect } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
 const styles = {
     container: {
@@ -22,6 +23,11 @@ const TileView = ({ token }: Props) => {
     const [nextPageToken, setNextPageToken] = useState('');
     const [videoCount, setVideoCount] = useState(0);
     const [videoList, setVideoList] = useState([]);
+
+    const dispatch = useDispatch();
+    if (token.expires_at - 1000 <= Date.now()) {
+        dispatch({ type: LOGOUT });
+    }
 
     useEffect(() => {
         if (!loaded && token.expires_at > Date.now()) {
@@ -58,7 +64,7 @@ const TileView = ({ token }: Props) => {
                 url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=19&pageToken=${nextPageToken}&playlistId=${playlistId}`,
                 responseType: 'json',
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token.access_token}`,
                 },
             }).then((response: any) => {
                 setVideoList(videoList.concat(response.data.items));
@@ -77,6 +83,7 @@ const TileView = ({ token }: Props) => {
                             title={title}
                             thumbnailUrl={thumbnailUrl}
                             id={id}
+                            key={uuidv4()}
                         />
                     );
                 })}
