@@ -40,28 +40,31 @@ const TileView = ({ token }: Props) => {
                     Authorization: `Bearer ${token.access_token}`,
                 },
             }).then((response: any) => {
-                setPlaylistId(
+                const id =
                     response.data.items[0].contentDetails.relatedPlaylists
-                        .uploads
-                );
+                        .uploads;
+                setPlaylistId(id);
                 axios({
                     method: 'get',
-                    url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=19&playlistId=${playlistId}`,
+                    url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${id}`,
                     responseType: 'json',
                     headers: {
                         Authorization: `Bearer ${token.access_token}`,
                     },
-                }).then((response: any) => {
-                    setLoaded(true);
-                    setNextPageToken(response.data.nextPageToken);
-                    setVideoCount(response.data.pageInfo.totalResults);
-                    setVideoList(videoList.concat(response.data.items));
-                });
+                }).then(
+                    (response: any) => {
+                        setLoaded(true);
+                        setNextPageToken(response.data.nextPageToken);
+                        setVideoCount(response.data.pageInfo.totalResults);
+                        setVideoList(videoList.concat(response.data.items));
+                    },
+                    (response) => console.log('iFailedMiser')
+                );
             });
         } else if (loadMore && videoList.length < videoCount) {
             axios({
                 method: 'get',
-                url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=19&pageToken=${nextPageToken}&playlistId=${playlistId}`,
+                url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&pageToken=${nextPageToken}&playlistId=${playlistId}`,
                 responseType: 'json',
                 headers: {
                     Authorization: `Bearer ${token.access_token}`,
@@ -74,6 +77,10 @@ const TileView = ({ token }: Props) => {
     return (
         <div style={styles.container}>
             <div className="row">
+                <EmptyTile
+                    action={() => window.alert('Upload coming soon!')}
+                    text="Upload video"
+                />
                 {videoList.map((video: any) => {
                     const title = video.snippet.title;
                     const thumbnailUrl = video.snippet.thumbnails.high.url;
@@ -87,7 +94,10 @@ const TileView = ({ token }: Props) => {
                         />
                     );
                 })}
-                <EmptyTile loadMore={() => setLoadMore(true)} />
+                <EmptyTile
+                    action={() => setLoadMore(true)}
+                    text="Load more..."
+                />
             </div>
         </div>
     );

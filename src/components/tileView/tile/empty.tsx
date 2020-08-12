@@ -20,25 +20,31 @@ const styles = {
         width: 320,
         backgroundColor: '#000',
     },
+    text: {
+        padding: '5px 0 0 5px',
+    },
 };
 
 interface Props {
-    loadMore: () => void;
+    action: () => void;
+    text: string;
 }
 
-const EmptyTile = ({ loadMore }: Props) => {
+const EmptyTile = ({ action, text }: Props) => {
     return (
         <div
             onClick={() => {
-                loadMore();
+                action();
             }}
             style={styles.link}>
-            <TextTruncate
-                line={1}
-                element="h6"
-                truncateText="..."
-                text={'Load More'}
-            />
+            <div style={styles.text}>
+                <TextTruncate
+                    line={1}
+                    element="h6"
+                    truncateText="..."
+                    text={text}
+                />
+            </div>
             <div style={styles.container}>
                 <div style={styles.thumbnail}></div>
             </div>
