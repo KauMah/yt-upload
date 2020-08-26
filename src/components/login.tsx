@@ -23,13 +23,15 @@ const Auth = () => {
             setLoggedIn(true);
         }
     };
+    const client = process.env.REACT_APP_CLIENT_ID;
+    console.log(client);
     return (
         <>
             {loggedIn ? (
                 <Redirect to="/videos" />
             ) : (
                 <GoogleLogin
-                    clientId={process.env['REACT_APP_CLIENT_ID'] as string}
+                    clientId={client as string}
                     buttonText="Login"
                     onSuccess={onSuccess}
                     onFailure={() => toast.error('Login Failed!')}
