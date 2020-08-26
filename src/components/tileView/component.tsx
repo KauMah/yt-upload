@@ -1,9 +1,12 @@
 import { AppState, LOGOUT, TokenObj } from '../../reduxStore';
 import { EmptyTile, Tile } from './tile/';
 import React, { useEffect, useState } from 'react';
+import { Redirect, useHistory } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 
+import _ from 'lodash';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 
 const styles = {
@@ -14,15 +17,22 @@ const styles = {
 
 interface Props {
     token: TokenObj;
+    signedIn: boolean;
 }
 
-const TileView = ({ token }: Props) => {
+const TileView = ({ token, signedIn }: Props) => {
     const [loaded, setLoaded] = useState(false);
     const [loadMore, setLoadMore] = useState(false);
     const [playlistId, setPlaylistId] = useState('');
     const [nextPageToken, setNextPageToken] = useState('');
     const [videoCount, setVideoCount] = useState(0);
     const [videoList, setVideoList] = useState([]);
+
+    const history = useHistory();
+
+    const newVideo = () => {
+        history.push('/videos/create');
+    };
 
     const dispatch = useDispatch();
     if (token.expires_at - 1000 <= Date.now()) {
@@ -39,28 +49,36 @@ const TileView = ({ token }: Props) => {
                 headers: {
                     Authorization: `Bearer ${token.access_token}`,
                 },
-            }).then((response: any) => {
-                const id =
-                    response.data.items[0].contentDetails.relatedPlaylists
-                        .uploads;
-                setPlaylistId(id);
-                axios({
-                    method: 'get',
-                    url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${id}`,
-                    responseType: 'json',
-                    headers: {
-                        Authorization: `Bearer ${token.access_token}`,
-                    },
-                }).then(
-                    (response: any) => {
-                        setLoaded(true);
-                        setNextPageToken(response.data.nextPageToken);
-                        setVideoCount(response.data.pageInfo.totalResults);
-                        setVideoList(videoList.concat(response.data.items));
-                    },
-                    (response) => console.log('iFailedMiser')
-                );
-            });
+            }).then(
+                (response: any) => {
+                    const id =
+                        response.data.items[0].contentDetails.relatedPlaylists
+                            .uploads;
+                    axios({
+                        method: 'get',
+                        url: `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${id}`,
+                        responseType: 'json',
+                        headers: {
+                            Authorization: `Bearer ${token.access_token}`,
+                        },
+                    }).then(
+                        (response: any) => {
+                            setLoaded(true);
+                            setPlaylistId(id);
+                            setNextPageToken(response.data.nextPageToken);
+                            setVideoCount(response.data.pageInfo.totalResults);
+                            setVideoList(
+                                _.union(videoList, response.data.items)
+                            );
+                        },
+                        () =>
+                            toast.error(
+                                'Failed to fetch videos! Refresh the page and try again'
+                            )
+                    );
+                },
+                () => toast.error('API Error! Refresh the page and try again')
+            );
         } else if (loadMore && videoList.length < videoCount) {
             axios({
                 method: 'get',
@@ -69,22 +87,26 @@ const TileView = ({ token }: Props) => {
                 headers: {
                     Authorization: `Bearer ${token.access_token}`,
                 },
-            }).then((response: any) => {
-                setVideoList(videoList.concat(response.data.items));
-            });
+            }).then(
+                (response: any) => {
+                    setVideoList(videoList.concat(response.data.items));
+                    setLoadMore(false);
+                },
+                () =>
+                    toast.error(
+                        'Failed to fetch more videos! Refresh the page and try again'
+                    )
+            );
         }
     });
-    return (
+    return signedIn ? (
         <div style={styles.container}>
             <div className="row">
-                <EmptyTile
-                    action={() => window.alert('Upload coming soon!')}
-                    text="Upload video"
-                />
+                <EmptyTile action={newVideo} text="Upload video" />
                 {videoList.map((video: any) => {
                     const title = video.snippet.title;
                     const thumbnailUrl = video.snippet.thumbnails.high.url;
-                    const id = video.id;
+                    const id = video.snippet.resourceId.videoId;
                     return (
                         <Tile
                             title={title}
@@ -94,18 +116,24 @@ const TileView = ({ token }: Props) => {
                         />
                     );
                 })}
-                <EmptyTile
-                    action={() => setLoadMore(true)}
-                    text="Load more..."
-                />
+                {videoList.length < videoCount && (
+                    <EmptyTile
+                        action={() => {
+                            if (!loadMore) setLoadMore(true);
+                        }}
+                        text="Load more..."
+                    />
+                )}
             </div>
         </div>
+    ) : (
+        <Redirect to="/login" />
     );
 };
 
 function mapStateToProps(state: AppState) {
-    const { accessToken } = state;
-    return { token: accessToken };
+    const { accessToken, signedIn } = state;
+    return { token: accessToken, signedIn: signedIn };
 }
 
 export default connect(mapStateToProps)(TileView);

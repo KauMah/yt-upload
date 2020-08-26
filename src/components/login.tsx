@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GoogleLogin } from 'react-google-login';
 import _ from 'lodash';
 import client from './client.json';
+import { toast } from 'react-toastify';
 
 interface Props extends RouteComponentProps {}
 
@@ -16,8 +17,8 @@ const Auth = () => {
     const dispatch = useDispatch();
 
     const onSuccess = (response: any) => {
-        console.log(response);
         const token = _.pick(response.tokenObj, ['access_token', 'expires_at']);
+        toast.success(`User: ${response.profileObj.name} logged in`);
         if (token.access_token) {
             dispatch({ type: LOGIN, token: token });
             setLoggedIn(true);
@@ -32,8 +33,9 @@ const Auth = () => {
                     clientId={client.web.client_id}
                     buttonText="Login"
                     onSuccess={onSuccess}
-                    onFailure={() => window.alert('Login Failed!')}
+                    onFailure={() => toast.error('Login Failed!')}
                     cookiePolicy={'single_host_origin'}
+                    scope="https://www.googleapis.com/auth/youtube"
                 />
             )}
         </>
