@@ -24,7 +24,6 @@ const Auth = () => {
         }
     };
     const client = process.env.REACT_APP_CLIENT_ID;
-    console.log(client);
     return (
         <>
             {loggedIn ? (
@@ -34,7 +33,10 @@ const Auth = () => {
                     clientId={client as string}
                     buttonText="Login"
                     onSuccess={onSuccess}
-                    onFailure={() => toast.error('Login Failed!')}
+                    onFailure={(err) => {
+                        toast.error('Login Failed!');
+                        console.log(err);
+                    }}
                     cookiePolicy={'single_host_origin'}
                     scope="https://www.googleapis.com/auth/youtube"
                 />
