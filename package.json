@@ -20,6 +20,7 @@
         "@types/uuid": "8.0.1",
         "axios": "0.19.2",
         "bootstrap": "4.5.2",
+        "dotenv": "8.2.0",
         "formik": "2.1.5",
         "lodash": "4.17.19",
         "react": "^16.13.1",

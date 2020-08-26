@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { GoogleLogin } from 'react-google-login';
 import _ from 'lodash';
-import client from './client.json';
 import { toast } from 'react-toastify';
 
 interface Props extends RouteComponentProps {}
@@ -30,7 +29,7 @@ const Auth = () => {
                 <Redirect to="/videos" />
             ) : (
                 <GoogleLogin
-                    clientId={client.web.client_id}
+                    clientId={process.env['REACT_APP_CLIENT_ID'] as string}
                     buttonText="Login"
                     onSuccess={onSuccess}
                     onFailure={() => toast.error('Login Failed!')}
