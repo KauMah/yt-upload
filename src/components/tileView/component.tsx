@@ -103,19 +103,23 @@ const TileView = ({ token, signedIn }: Props) => {
         <div style={styles.container}>
             <div className="row">
                 <EmptyTile action={newVideo} text="Upload video" />
-                {videoList.map((video: any) => {
-                    const title = video.snippet.title;
-                    const thumbnailUrl = video.snippet.thumbnails.high.url;
-                    const id = video.snippet.resourceId.videoId;
-                    return (
-                        <Tile
-                            title={title}
-                            thumbnailUrl={thumbnailUrl}
-                            id={id}
-                            key={uuidv4()}
-                        />
-                    );
-                })}
+                {videoList
+                    .filter(
+                        (video: any) => video.snippet.title !== 'Deleted video'
+                    )
+                    .map((video: any) => {
+                        const title = video.snippet.title;
+                        const thumbnailUrl = video.snippet.thumbnails.high.url;
+                        const id = video.snippet.resourceId.videoId;
+                        return (
+                            <Tile
+                                title={title}
+                                thumbnailUrl={thumbnailUrl}
+                                id={id}
+                                key={uuidv4()}
+                            />
+                        );
+                    })}
                 {videoList.length < videoCount && (
                     <EmptyTile
                         action={() => {

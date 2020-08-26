@@ -149,7 +149,7 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
 
     const updateVideo = async (video: VideoUpload) => {
         await axios({
-            method: 'put',
+            method: 'PUT',
             headers: {
                 authorization: `Bearer ${token.access_token}`,
                 accept: 'application/json',
@@ -176,6 +176,25 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
             },
             () => {
                 toast.error('Failed to update video!');
+            }
+        );
+    };
+
+    const deleteVideo = async () => {
+        await axios({
+            method: 'DELETE',
+            url: `https://www.googleapis.com/youtube/v3/videos?id=${match.params.id}`,
+            headers: {
+                authorization: `Bearer ${token.access_token}`,
+                accept: 'application/json',
+            },
+        }).then(
+            () => {
+                setLeavePage(true);
+                toast.success('Successfully deleted video!');
+            },
+            () => {
+                toast.error('Failed to delete video!');
             }
         );
     };
@@ -218,11 +237,24 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
 
     return signedIn && !leavePage ? (
         <div style={styles.container} className="container">
+            {!isCreate && (
+                <Button type="button" onClick={deleteVideo}>
+                    Delete
+                </Button>
+            )}
             <Formik
                 initialValues={videoTemplate}
                 onSubmit={(data, { setSubmitting }) => {
                     setSubmitting(true);
-                    isCreate ? uploadVideo(data) : updateVideo(data);
+                    isCreate
+                        ? uploadVideo(data).then(
+                              () => setSubmitting(false),
+                              () => setSubmitting(false)
+                          )
+                        : updateVideo(data).then(
+                              () => setSubmitting(false),
+                              () => setSubmitting(false)
+                          );
                     setSubmitting(false);
                 }}>
                 {({
