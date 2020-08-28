@@ -61,6 +61,7 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
     const [loaded, setLoaded] = useState(false);
     const [formLoaded, setFormLoaded] = useState(false);
     const [leavePage, setLeavePage] = useState(false);
+    const [progress, setProgress] = useState(-1);
     const isCreate = match.path === '/videos/create';
 
     const dispatch = useDispatch();
@@ -129,6 +130,8 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
                         authorization: `Bearer ${token.access_token}`,
                         'Content-Type': video.video?.type,
                     },
+                    onUploadProgress: (evt: ProgressEvent) =>
+                        setProgress(Math.round((evt.loaded / evt.total) * 100)),
                     data: await video.video?.arrayBuffer(),
                 }).then(
                     () => {
@@ -255,7 +258,6 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
                               () => setSubmitting(false),
                               () => setSubmitting(false)
                           );
-                    setSubmitting(false);
                 }}>
                 {({
                     values,
@@ -265,7 +267,7 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
                     handleSubmit,
                     setValues,
                 }) => {
-                    if (loaded && !formLoaded) {
+                    if (loaded && !formLoaded && !isCreate) {
                         fetchVideoData().then((vid) => {
                             setFormLoaded(true);
                             setValues({ ...vid, video: values.video });
@@ -354,6 +356,7 @@ const EditVideo: React.FC<Props> = ({ match, token, signedIn }) => {
                     );
                 }}
             </Formik>
+            {progress !== -1 && <p>{progress}% loaded</p>}
         </div>
     ) : (
         <Redirect to={leavePage ? '/videos' : '/login'} />
