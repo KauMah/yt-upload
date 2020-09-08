@@ -9,6 +9,16 @@ import { toast } from 'react-toastify';
 
 interface Props extends RouteComponentProps {}
 
+const styles = {
+    logo: {
+        height: '200px',
+        width: '300px',
+    },
+    centered: {
+        textAlign: 'center' as 'center',
+    },
+};
+
 const Auth = () => {
     const [loggedIn, setLoggedIn] = useState(
         useSelector<AppState, AppState['signedIn']>((state) => state.signedIn)
@@ -29,17 +39,31 @@ const Auth = () => {
             {loggedIn ? (
                 <Redirect to="/videos" />
             ) : (
-                <GoogleLogin
-                    clientId={client as string}
-                    buttonText="Login"
-                    onSuccess={onSuccess}
-                    onFailure={(err) => {
-                        toast.error('Login Failed!');
-                        console.log(err);
-                    }}
-                    cookiePolicy={'single_host_origin'}
-                    scope="https://www.googleapis.com/auth/youtube"
-                />
+                <div className="container" style={styles.centered}>
+                    <img
+                        style={styles.logo}
+                        src="https://download.logo.wine/logo/YouTube/YouTube-Logo.wine.png"
+                        alt="YouTube"
+                        className="col-12"
+                    />
+                    <p>
+                        Welcome to my YouTube upload client, where you can
+                        upload and manage your content!
+                    </p>
+                    <div className="col-12">
+                        <GoogleLogin
+                            clientId={client as string}
+                            buttonText="Login"
+                            onSuccess={onSuccess}
+                            onFailure={(err) => {
+                                toast.error('Login Failed!');
+                                console.log(err);
+                            }}
+                            cookiePolicy={'single_host_origin'}
+                            scope="https://www.googleapis.com/auth/youtube"
+                        />
+                    </div>
+                </div>
             )}
         </>
     );
